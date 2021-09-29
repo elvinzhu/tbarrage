@@ -2,7 +2,7 @@ import Taro from '@tarojs/taro';
 import { getCanvas, getImage } from './helper';
 
 interface IRunningItem {
-  img: Taro.Image;
+  img: Taro.Image | HTMLImageElement;
   txt: string;
   left: number;
   top: number;
@@ -24,7 +24,7 @@ export default class Barrage {
   queue: IRunningItem[] = [];
   runnings: IRunningItem[][] = [];
   stoped: Boolean = false;
-  canvas: Taro.Canvas;
+  canvas: Taro.Canvas | HTMLCanvasElement;
   options: IOptions = {};
   rafId: number;
 
@@ -36,28 +36,23 @@ export default class Barrage {
     }
   }
 
-  getCanvas() {
-    if (this.canvas) {
-      return Promise.resolve(this.canvas);
-    }
-    return getCanvas(this.selector).then(canvas => {
+  async getCanvas() {
+    if (!this.canvas) {
+      const canvas = await getCanvas(this.selector);
       // if (!canvas) {
       //   throw new Error('未找到canvas，请确保selector传递正确，且正确配置了type属性');
       // }
       this.canvas = canvas;
-      return canvas;
-    });
+    }
+    return this.canvas;
   }
 
-  push(data: IItem[]) {
+  push(data: IItem[] | IItem) {
     if (Array.isArray(data)) {
-      data.forEach(item => {
-        this.resolve(item);
-      });
+      data.forEach(item => this.resolve(item));
     } else {
       this.resolve(data);
     }
-    return this;
   }
 
   async resolve(item: IItem) {
@@ -77,7 +72,7 @@ export default class Barrage {
 
   async run() {
     this.stoped = false;
-    const canvas: Taro.Canvas = await this.getCanvas();
+    const canvas = await this.getCanvas();
     const that = this;
 
     const sysInfo = Taro.getSystemInfoSync();
@@ -98,7 +93,7 @@ export default class Barrage {
     ctx.font = 'normal normal normal 12px arial';
     ctx.scale(dpr, dpr);
 
-    const addItem = function(item: IRunningItem, j: number) {
+    const addItem = function (item: IRunningItem, j: number) {
       // 同一行，保持相同的速度
       if (runings[j].length) {
         item.speed = runings[j][0].speed;
@@ -116,7 +111,7 @@ export default class Barrage {
     };
 
     let i: number, row: IRunningItem[], rowFirst: IRunningItem, rowLast: IRunningItem;
-    let run = function() {
+    let run = function () {
       if (that.stoped) return;
 
       ctx.clearRect(0, 0, screenW, 300);
@@ -149,7 +144,11 @@ export default class Barrage {
         }
       }
 
-      that.rafId = canvas.requestAnimationFrame(run);
+      if (process.env.TARO_ENV === 'h5') {
+        that.rafId = window.requestAnimationFrame(run);
+      } else {
+        (canvas as Taro.Canvas).requestAnimationFrame(run);
+      }
     };
 
     run();
@@ -186,7 +185,11 @@ export default class Barrage {
     this.stoped = true;
     if (this.canvas) {
       try {
-        this.canvas.cancelAnimationFrame(this.rafId);
+        if (process.env.TARO_ENV === 'h5') {
+          window.cancelAnimationFrame(this.rafId);
+        } else {
+          (this.canvas as Taro.Canvas).cancelAnimationFrame(this.rafId);
+        }
       } catch (error) {}
     }
   }

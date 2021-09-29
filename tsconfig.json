@@ -20,7 +20,5 @@
     // "declarationDir": "./dist",
     "declaration": true
   },
-  "compileOnSave": false,
-  "exclude": ["node_modules/*"],
-  "include": ["src/*.ts"]
+  "compileOnSave": false
 }
