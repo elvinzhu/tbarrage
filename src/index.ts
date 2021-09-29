@@ -59,7 +59,8 @@ export default class Barrage {
     const canvas = await this.getCanvas();
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const runings = this.runnings;
-    const { maxRow, rowGap, dpr, height, canvasHeight, canvasWidth, imgWith, color, font, firstRowTop } = this.options;
+    const { maxRow, rowGap, imgTextGap, dpr, height, canvasHeight, canvasWidth, imgWidth, color, font, firstRowTop } =
+      this.options;
 
     // @ts-ignore
     canvas.width = canvasWidth * dpr;
@@ -84,7 +85,7 @@ export default class Barrage {
       // 行间距
       item.top = j * (rowGap + height) + firstRowTop;
       if (!item.width) {
-        item.width = ctx.measureText(item.txt).width + imgWith + 4; //  + 头像宽度 + 头像文字间距
+        item.width = ctx.measureText(item.txt).width + imgWidth + imgTextGap; //  + 头像宽度 + 头像文字间距
       }
       runings[j].push(item);
     };
@@ -134,10 +135,11 @@ export default class Barrage {
   }
 
   drawItem(ctx: CanvasRenderingContext2D, item: IRunningItem) {
-    const { height, imgWith, bgColor } = this.options;
+    const { height, imgWidth, bgColor, imgTextGap } = this.options;
     let { left, top } = item; // top 指的是底色中心位置;
+    let textX = left;
 
-    top += top / 2;
+    top += height / 2;
 
     if (bgColor) {
       // 底色高度
@@ -153,16 +155,18 @@ export default class Barrage {
     }
     // 画圆形头像
     if (item.img) {
-      const radius = imgWith / 2;
+      const radius = imgWidth / 2;
+      const imgX = left - height / 4;
+      textX = imgX + imgWidth + imgTextGap;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(left + radius - height / 4, top, radius, 0, 2 * Math.PI);
+      ctx.arc(imgX + radius, top, radius, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(item.img as CanvasImageSource, left, top - radius, imgWith, imgWith);
+      ctx.drawImage(item.img as CanvasImageSource, imgX, top - radius, imgWidth, imgWidth);
       ctx.restore();
     }
     // 文字
-    ctx.fillText(item.txt, left + imgWith + 4, top);
+    ctx.fillText(item.txt, textX, top);
   }
 
   toggleRun() {

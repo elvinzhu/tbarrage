@@ -36,7 +36,7 @@ export interface IOptions {
   /**
    * 头像尺寸. 默认15px
    */
-  imgWith: number;
+  imgWidth: number;
   /**
    * 最大行数。默认3
    */
@@ -45,6 +45,10 @@ export interface IOptions {
    * 行间距. 默认20
    */
   rowGap: number;
+  /**
+   * 头像文字间距。默认6
+   */
+  imgTextGap: number;
   /**
    * 每条弹幕的底色。默认rgba(0,0,0,0.4). 传递null表示不绘制底色
    */
