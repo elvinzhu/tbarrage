@@ -2,6 +2,8 @@ import NodePath from 'path';
 import RollupNodeResolve from '@rollup/plugin-node-resolve';
 import RollupCommonjs from '@rollup/plugin-commonjs';
 import RollupTypescript from 'rollup-plugin-typescript2';
+import copy from 'rollup-plugin-copy';
+import cleaner from 'rollup-plugin-cleaner';
 import pkg from './package.json';
 
 const resolveFile = path => NodePath.resolve(__dirname, path);
@@ -23,6 +25,7 @@ export default {
   ],
   external: externalpkgs,
   plugins: [
+    cleaner({ targets: ['dist', 'demo/src/dist'] }),
     RollupNodeResolve({
       customResolveOptions: {
         moduleDirectory: 'node_modules',
@@ -30,5 +33,12 @@ export default {
     }),
     RollupCommonjs(),
     RollupTypescript({ include: ['src/*.ts'] }),
+    copy({
+      targets: [
+        { src: 'dist/index.d.ts', rename: 'index.es.d.ts', dest: 'demo/src/dist' },
+        { src: 'dist/*', dest: 'demo/src/dist' },
+      ],
+      hook: 'writeBundle',
+    }),
   ],
 };

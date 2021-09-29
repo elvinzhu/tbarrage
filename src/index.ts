@@ -1,23 +1,6 @@
 import Taro from '@tarojs/taro';
-import { getCanvas, getImage } from './helper';
-
-interface IRunningItem {
-  img: Taro.Image | HTMLImageElement;
-  txt: string;
-  left: number;
-  top: number;
-  speed: number;
-  width: number;
-}
-
-interface IItem {
-  img: string;
-  txt: string;
-}
-
-interface IOptions {
-  maxLen?: number;
-}
+import { getCanvas, getImage, mergeOptions } from './helper';
+import { IRunningItem, IItem, IOptions } from './types';
 
 export default class Barrage {
   selector: string;
@@ -25,11 +8,11 @@ export default class Barrage {
   runnings: IRunningItem[][] = [];
   stoped: Boolean = false;
   canvas: Taro.Canvas | HTMLCanvasElement;
-  options: IOptions = {};
+  options: IOptions;
   rafId: number;
 
-  constructor(selector: string, data: IItem[], options: IOptions = {}) {
-    this.options = options;
+  constructor(selector: string, data: IItem[], options: Partial<IOptions> = {}) {
+    this.options = mergeOptions(options);
     this.selector = selector;
     if (data) {
       this.push(data);
@@ -39,9 +22,9 @@ export default class Barrage {
   async getCanvas() {
     if (!this.canvas) {
       const canvas = await getCanvas(this.selector);
-      // if (!canvas) {
-      //   throw new Error('未找到canvas，请确保selector传递正确，且正确配置了type属性');
-      // }
+      if (!canvas || !canvas.getContext) {
+        throw new Error('未找到canvas，请确保selector传递正确，且canvas正确配置了type属性');
+      }
       this.canvas = canvas;
     }
     return this.canvas;
@@ -56,44 +39,40 @@ export default class Barrage {
   }
 
   async resolve(item: IItem) {
+    const itemData: IRunningItem = {
+      txt: item.txt,
+      left: 0,
+      top: 0,
+      speed: 0,
+      width: 0,
+    };
     const canvas = await this.getCanvas();
-    const img = await getImage(canvas, item.img).catch(() => null);
-    if (img) {
-      this.queue.push({
-        img,
-        txt: item.txt,
-        left: 0,
-        top: 0,
-        speed: 0,
-        width: 0,
-      });
+    if (item.img) {
+      const img = await getImage(canvas, item.img).catch(() => undefined);
+      itemData.img = img;
     }
+    this.queue.push(itemData);
   }
 
   async run() {
     this.stoped = false;
     const canvas = await this.getCanvas();
-    const that = this;
-
-    const sysInfo = Taro.getSystemInfoSync();
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const runings = this.runnings;
-    const screenW = sysInfo.windowWidth;
-    const maxLen = this.options.maxLen || 6;
-    const dpr = sysInfo.pixelRatio;
+    const { maxRow, rowGap, dpr, height, canvasHeight, canvasWidth, imgWith, color, font, firstRowTop } = this.options;
 
     // @ts-ignore
-    canvas.width = screenW * dpr;
+    canvas.width = canvasWidth * dpr;
     // @ts-ignore
-    canvas.height = 100 * dpr;
+    canvas.height = canvasHeight * dpr;
 
     ctx.imageSmoothingEnabled = true;
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = 'white';
-    ctx.font = 'normal normal normal 12px arial';
+    ctx.fillStyle = color;
+    ctx.font = font;
     ctx.scale(dpr, dpr);
 
-    const addItem = function (item: IRunningItem, j: number) {
+    const addItem = (item: IRunningItem, j: number) => {
       // 同一行，保持相同的速度
       if (runings[j].length) {
         item.speed = runings[j][0].speed;
@@ -101,22 +80,22 @@ export default class Barrage {
         // 如果是第一项，则给一个速度. (包含2种场景，1. 所有项都移除了屏幕 2. 本行刚刚添加)
         item.speed = Math.floor(Math.random() * 40) / 100;
       }
-      item.left = screenW + 200 * Math.random();
+      item.left = canvasWidth + canvasWidth * Math.random();
       // 行间距
-      item.top = j * 46 + 22;
+      item.top = j * (rowGap + height) + firstRowTop;
       if (!item.width) {
-        item.width = ctx.measureText(item.txt).width + 15 + 4; //  + 头像宽度 + 头像文字间距
+        item.width = ctx.measureText(item.txt).width + imgWith + 4; //  + 头像宽度 + 头像文字间距
       }
       runings[j].push(item);
     };
 
     let i: number, row: IRunningItem[], rowFirst: IRunningItem, rowLast: IRunningItem;
-    let run = function () {
-      if (that.stoped) return;
+    let run = () => {
+      if (this.stoped) return;
 
-      ctx.clearRect(0, 0, screenW, 300);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       // 如果还未超出最大行数，则新开一行
-      if (runings.length < maxLen && that.queue.length) {
+      if (runings.length < maxRow && this.queue.length) {
         runings.push([]);
       }
 
@@ -125,27 +104,27 @@ export default class Barrage {
         // 当前行
         row = runings[i];
         rowFirst = row[0];
-        if (that.queue.length) {
+        if (this.queue.length) {
           rowLast = row[row.length - 1];
           // 如果该行没有了，或者最后一项移动了特定距离，则追加一项
-          if (row.length < 1 || rowLast.left + rowLast.width + 30 < screenW) {
-            addItem(that.queue.shift() as IRunningItem, i);
+          if (row.length < 1 || rowLast.left + rowLast.width + 30 < canvasWidth) {
+            addItem(this.queue.shift() as IRunningItem, i);
           }
         }
         // 如果第一个已经跑出了视野
         if (rowFirst && rowFirst.left + rowFirst.width < 0) {
-          that.queue.push(rowFirst);
+          this.queue.push(rowFirst);
           row.shift();
         }
         // 将每一项往左移动
         for (var t = 0; t < row.length; t++) {
           row[t].left -= 1 + row[t].speed;
-          that.drawItem(ctx, row[t]);
+          this.drawItem(ctx, row[t]);
         }
       }
 
       if (process.env.TARO_ENV === 'h5') {
-        that.rafId = window.requestAnimationFrame(run);
+        this.rafId = window.requestAnimationFrame(run);
       } else {
         (canvas as Taro.Canvas).requestAnimationFrame(run);
       }
@@ -155,42 +134,49 @@ export default class Barrage {
   }
 
   drawItem(ctx: CanvasRenderingContext2D, item: IRunningItem) {
-    const left = item.left,
-      top = item.top;
-    const radius = 15 / 2;
-    const height = 22;
+    const { height, imgWith, bgColor } = this.options;
+    let { left, top } = item; // top 指的是底色中心位置;
 
-    // 底色高度
-    ctx.lineWidth = height;
-    // 底色圆角
-    ctx.lineCap = 'round';
-    // 画底色
-    ctx.beginPath();
-    ctx.moveTo(left, top);
-    ctx.lineTo(left + item.width, top);
-    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-    ctx.stroke();
+    top += top / 2;
+
+    if (bgColor) {
+      // 底色高度
+      ctx.lineWidth = height;
+      // 底色圆角
+      ctx.lineCap = 'round';
+      // 画底色
+      ctx.beginPath();
+      ctx.moveTo(left, top);
+      ctx.lineTo(left + item.width, top);
+      ctx.strokeStyle = bgColor;
+      ctx.stroke();
+    }
     // 画圆形头像
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(left + radius, top, radius, 0, 2 * Math.PI);
-    ctx.clip();
-    ctx.drawImage(item.img as CanvasImageSource, left, top - radius, 15, 15);
-    ctx.restore();
+    if (item.img) {
+      const radius = imgWith / 2;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(left + radius - height / 4, top, radius, 0, 2 * Math.PI);
+      ctx.clip();
+      ctx.drawImage(item.img as CanvasImageSource, left, top - radius, imgWith, imgWith);
+      ctx.restore();
+    }
     // 文字
-    ctx.fillText(item.txt, left + 15 + 4, top);
+    ctx.fillText(item.txt, left + imgWith + 4, top);
+  }
+
+  toggleRun() {
+    this.stoped ? this.run() : this.stop();
   }
 
   stop() {
     this.stoped = true;
     if (this.canvas) {
-      try {
-        if (process.env.TARO_ENV === 'h5') {
-          window.cancelAnimationFrame(this.rafId);
-        } else {
-          (this.canvas as Taro.Canvas).cancelAnimationFrame(this.rafId);
-        }
-      } catch (error) {}
+      if (process.env.TARO_ENV === 'h5') {
+        window.cancelAnimationFrame(this.rafId);
+      } else {
+        (this.canvas as Taro.Canvas).cancelAnimationFrame(this.rafId);
+      }
     }
   }
 }

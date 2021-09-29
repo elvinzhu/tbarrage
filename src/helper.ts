@@ -1,9 +1,10 @@
 import Taro from '@tarojs/taro';
+import { IOptions } from './types';
 
 export function getCanvas(selector: string): Promise<Taro.Canvas | HTMLCanvasElement> {
   return new Promise(resolve => {
     if (process.env.TARO_ENV === 'h5') {
-      resolve(document.querySelector(selector) as HTMLCanvasElement);
+      resolve(document.querySelector(`${selector} canvas`) as HTMLCanvasElement);
     } else {
       const query = Taro.createSelectorQuery();
       query
@@ -30,4 +31,21 @@ export function getImage(
     };
     img.src = filePath;
   });
+}
+
+export function mergeOptions(options: Partial<IOptions>): IOptions {
+  const sysInfo = Taro.getSystemInfoSync();
+  return {
+    canvasHeight: options.canvasHeight || 150,
+    canvasWidth: options.canvasWidth || sysInfo.windowWidth,
+    height: options.height || 22,
+    imgWith: options.imgWith || 15,
+    maxRow: options.maxRow || 3,
+    rowGap: options.rowGap || 20,
+    bgColor: options.bgColor === null ? null : options.bgColor || 'rgba(0,0,0,0.4)',
+    dpr: options.dpr || sysInfo.pixelRatio,
+    color: options.color || 'white',
+    font: options.font || '12px arial',
+    firstRowTop: options.firstRowTop || 22,
+  };
 }
