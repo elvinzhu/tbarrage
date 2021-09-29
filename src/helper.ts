@@ -35,12 +35,14 @@ export function getImage(
 
 export function mergeOptions(options: Partial<IOptions>): IOptions {
   const sysInfo = Taro.getSystemInfoSync();
+  const canvasHeight = options.canvasHeight || 150;
   return {
-    canvasHeight: options.canvasHeight || 150,
+    canvasHeight,
     canvasWidth: options.canvasWidth || sysInfo.windowWidth,
     height: options.height || 22,
     imgWidth: options.imgWidth || 15,
     maxRow: options.maxRow || 3,
+    minGap: options.minGap || 30,
     rowGap: options.rowGap || 20,
     imgTextGap: options.imgTextGap || 6,
     bgColor: options.bgColor === null ? null : options.bgColor || 'rgba(0,0,0,0.4)',
@@ -48,5 +50,9 @@ export function mergeOptions(options: Partial<IOptions>): IOptions {
     color: options.color || 'white',
     font: options.font || '12px arial',
     firstRowTop: options.firstRowTop || 22,
+    minSpeed: options.minSpeed || 1,
+    maxSpeed: options.maxSpeed || 40,
+    appearMaxGap: options.appearMaxGap || canvasHeight,
+    mode: options.mode || 'loop',
   };
 }

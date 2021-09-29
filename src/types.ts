@@ -1,6 +1,17 @@
 import Taro from '@tarojs/taro';
 
-export interface IRunningItem {
+export interface IItemStyle {
+  /**
+   * 弹幕字体样式。默认 "12px arial"
+   */
+  font: string;
+  /**
+   * 弹幕文字颜色。默认white
+   */
+  color: string;
+}
+
+export interface IRunningItem extends IItemStyle {
   img?: Taro.Image | HTMLImageElement;
   txt: string;
   left: number;
@@ -9,7 +20,7 @@ export interface IRunningItem {
   width: number;
 }
 
-export interface IItem {
+export interface IItem extends Partial<IItemStyle> {
   /**
    * 头像
    */
@@ -20,7 +31,11 @@ export interface IItem {
   txt: string;
 }
 
-export interface IOptions {
+export interface IOptions extends IItemStyle {
+  /**
+   * 弹幕项出场模式。once：只出场一次 loop：循环参与滚动
+   */
+  mode: 'once' | 'loop';
   /**
    * 画布高度。默认150px
    */
@@ -42,6 +57,10 @@ export interface IOptions {
    */
   maxRow: number;
   /**
+   * 每行弹幕项最小间隔。默认30
+   */
+  minGap: number;
+  /**
    * 行间距. 默认20
    */
   rowGap: number;
@@ -50,17 +69,13 @@ export interface IOptions {
    */
   imgTextGap: number;
   /**
+   * 弹幕出场时距离画布最后侧最大距离。默认 canvasWidth
+   */
+  appearMaxGap: number;
+  /**
    * 每条弹幕的底色。默认rgba(0,0,0,0.4). 传递null表示不绘制底色
    */
   bgColor?: string | null;
-  /**
-   * 弹幕文字颜色。默认white
-   */
-  color: string;
-  /**
-   * ctx.font。默认 "12px arial"
-   */
-  font: string;
   /**
    * device pixel ratio. 默认自动获取
    */
@@ -69,4 +84,12 @@ export interface IOptions {
    * 第一行弹幕距离顶部位置. 默认同 height
    */
   firstRowTop: number;
+  /**
+   * 最小滚动速度。 默认1
+   */
+  minSpeed: number;
+  /**
+   * 最大滚动速度。默认40
+   */
+  maxSpeed: number;
 }

@@ -39,12 +39,15 @@ export default class Barrage {
   }
 
   async resolve(item: IItem) {
+    const { color, font } = this.options;
     const itemData: IRunningItem = {
       txt: item.txt,
       left: 0,
       top: 0,
       speed: 0,
       width: 0,
+      color: item.color || color,
+      font: item.font || font,
     };
     const canvas = await this.getCanvas();
     if (item.img) {
@@ -56,11 +59,12 @@ export default class Barrage {
 
   async run() {
     this.stoped = false;
+    const { height, canvasHeight, canvasWidth, imgWidth, dpr, maxRow, firstRowTop } = this.options;
+    const { minGap, rowGap, imgTextGap, appearMaxGap, minSpeed, maxSpeed, mode } = this.options;
+
     const canvas = await this.getCanvas();
     const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     const runings = this.runnings;
-    const { maxRow, rowGap, imgTextGap, dpr, height, canvasHeight, canvasWidth, imgWidth, color, font, firstRowTop } =
-      this.options;
 
     // @ts-ignore
     canvas.width = canvasWidth * dpr;
@@ -69,8 +73,6 @@ export default class Barrage {
 
     ctx.imageSmoothingEnabled = true;
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = color;
-    ctx.font = font;
     ctx.scale(dpr, dpr);
 
     const addItem = (item: IRunningItem, j: number) => {
@@ -79,13 +81,18 @@ export default class Barrage {
         item.speed = runings[j][0].speed;
       } else {
         // 如果是第一项，则给一个速度. (包含2种场景，1. 所有项都移除了屏幕 2. 本行刚刚添加)
-        item.speed = Math.floor(Math.random() * 40) / 100;
+        item.speed = Math.max(Math.floor(Math.random() * maxSpeed) / 100, minSpeed);
       }
-      item.left = canvasWidth + canvasWidth * Math.random();
+      item.left = canvasWidth + appearMaxGap * Math.random();
       // 行间距
       item.top = j * (rowGap + height) + firstRowTop;
       if (!item.width) {
-        item.width = ctx.measureText(item.txt).width + imgWidth + imgTextGap; //  + 头像宽度 + 头像文字间距
+        ctx.font = item.font; // 字体样式影响measureText
+        item.width = ctx.measureText(item.txt).width;
+        if (item.img) {
+          // + 头像宽度 + 头像文字间距
+          item.width += imgWidth + imgTextGap;
+        }
       }
       runings[j].push(item);
     };
@@ -108,18 +115,18 @@ export default class Barrage {
         if (this.queue.length) {
           rowLast = row[row.length - 1];
           // 如果该行没有了，或者最后一项移动了特定距离，则追加一项
-          if (row.length < 1 || rowLast.left + rowLast.width + 30 < canvasWidth) {
+          if (row.length < 1 || rowLast.left + rowLast.width + minGap < canvasWidth) {
             addItem(this.queue.shift() as IRunningItem, i);
           }
         }
         // 如果第一个已经跑出了视野
-        if (rowFirst && rowFirst.left + rowFirst.width < 0) {
+        if (rowFirst && mode === 'loop' && rowFirst.left + rowFirst.width < 0) {
           this.queue.push(rowFirst);
           row.shift();
         }
         // 将每一项往左移动
         for (var t = 0; t < row.length; t++) {
-          row[t].left -= 1 + row[t].speed;
+          row[t].left -= row[t].speed;
           this.drawItem(ctx, row[t]);
         }
       }
@@ -136,7 +143,7 @@ export default class Barrage {
 
   drawItem(ctx: CanvasRenderingContext2D, item: IRunningItem) {
     const { height, imgWidth, bgColor, imgTextGap } = this.options;
-    let { left, top } = item; // top 指的是底色中心位置;
+    let { left, top, color, font } = item; // top 指的是底色中心位置;
     let textX = left;
 
     top += height / 2;
@@ -166,6 +173,8 @@ export default class Barrage {
       ctx.restore();
     }
     // 文字
+    ctx.fillStyle = color;
+    ctx.font = font;
     ctx.fillText(item.txt, textX, top);
   }
 
