@@ -81,7 +81,7 @@ export default class Barrage {
         item.speed = runings[j][0].speed;
       } else {
         // 如果是第一项，则给一个速度. (包含2种场景，1. 所有项都移除了屏幕 2. 本行刚刚添加)
-        item.speed = Math.max(Math.floor(Math.random() * maxSpeed) / 100, minSpeed);
+        item.speed = Math.max(Math.floor(Math.random() * maxSpeed) / 100) + minSpeed;
       }
       item.left = canvasWidth + appearMaxGap * Math.random();
       // 行间距
