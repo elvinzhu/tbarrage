@@ -49,7 +49,7 @@ export interface IOptions extends IItemStyle {
    */
   canvasWidth: number;
   /**
-   * 弹幕项高度。默认150px
+   * 弹幕项高度。默认22px
    */
   height: number;
   /**
