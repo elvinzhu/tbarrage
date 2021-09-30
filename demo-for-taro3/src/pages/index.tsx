@@ -9,50 +9,49 @@ import './index.css';
 export default class Index extends Component {
   barrage: Barrage;
 
-  state = {
-    text: '',
-  };
+  state = { text: '' };
 
   componentDidMount() {
-
-    setTimeout(() => {
-      this.barrage = new Barrage('#canvas', [
-        {
-          img: avatar,
-          txt: 'xx领取了法拉利5元优惠券',
-          color: 'red',
-          bgColor: null,
-        },
-        {
-          // img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-        },
-        {
-          // img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-        },
-        {
-          img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-        },
-        {
-          // img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-          color: 'red',
-        },
-        {
-          img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-        },
-        {
-          // img: avatar,
-          txt: 'xx刚刚领取了兰博基尼5元优惠券',
-        },
-      ]);
-
-      this.barrage.run();
-    }, 2000);
+    Taro.eventCenter.once(Taro.Current.router?.onReady as string, this.init);
   }
+
+  init = () => {
+    this.barrage = new Barrage('#canvas', [
+      {
+        img: avatar,
+        txt: 'xx领取了法拉利5元优惠券',
+        color: 'red',
+        bgColor: null,
+      },
+      {
+        // img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+      },
+      {
+        // img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+      },
+      {
+        img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+      },
+      {
+        // img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+        color: 'red',
+      },
+      {
+        img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+      },
+      {
+        // img: avatar,
+        txt: 'xx刚刚领取了兰博基尼5元优惠券',
+      },
+    ]);
+
+    this.barrage.run();
+  };
 
   componentDidShow() {
     if (this.barrage) {
