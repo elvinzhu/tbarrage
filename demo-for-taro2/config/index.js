@@ -58,7 +58,7 @@ const config = {
     },
   },
   h5: {
-    publicPath: '/tbarrage/demo/h5dist',
+    publicPath: '/tbarrage',
     staticDirectory: 'static',
     postcss: {
       autoprefixer: {

@@ -13,7 +13,7 @@
     "build:swan": "taro build --type swan",
     "build:alipay": "taro build --type alipay",
     "build:tt": "taro build --type tt",
-    "build:h5": "taro build --type h5",
+    "build:h5": "npx taro build --type h5",
     "build:rn": "taro build --type rn",
     "build:qq": "taro build --type qq",
     "build:jd": "taro build --type jd",
@@ -36,12 +36,13 @@
   "author": "",
   "dependencies": {
     "@babel/runtime": "^7.7.7",
+    "@tarojs/cli": "^3.3.9",
     "@tarojs/components": "3.3.9",
+    "@tarojs/react": "3.3.9",
     "@tarojs/runtime": "3.3.9",
     "@tarojs/taro": "3.3.9",
-    "@tarojs/react": "3.3.9",
-    "react-dom": "^17.0.0",
-    "react": "^17.0.0"
+    "react": "^17.0.0",
+    "react-dom": "^17.0.0"
   },
   "devDependencies": {
     "@types/webpack-env": "^1.13.6",

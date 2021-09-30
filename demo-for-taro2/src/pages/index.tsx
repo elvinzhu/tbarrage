@@ -87,10 +87,10 @@ export default class Index extends Component {
             }
             size="mini"
           >
-            发送弹幕
+            Send
           </Button>
           <Button onClick={() => this.barrage.toggleRun()} size="mini">
-            停止滚动
+            Pause
           </Button>
         </View>
       </View>
