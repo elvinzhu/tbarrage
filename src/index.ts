@@ -189,13 +189,12 @@ export default class Barrage {
     // 画圆形头像
     if (item.img) {
       const radius = imgWidth / 2;
-      const imgX = left - height / 4;
-      textX = imgX + imgWidth + imgTextGap;
+      textX = left + imgWidth + imgTextGap;
       ctx.save();
       ctx.beginPath();
-      ctx.arc(imgX + radius, top, radius, 0, 2 * Math.PI);
+      ctx.arc(left + radius, top, radius, 0, 2 * Math.PI);
       ctx.clip();
-      ctx.drawImage(item.img as CanvasImageSource, imgX, top - radius, imgWidth, imgWidth);
+      ctx.drawImage(item.img as CanvasImageSource, left, top - radius, imgWidth, imgWidth);
       ctx.restore();
     }
     // 文字

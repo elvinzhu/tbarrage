@@ -33,8 +33,21 @@ export function getImage(
   });
 }
 
+export function getDeviceInfo() {
+  let windowWidth: number, pixelRatio: number;
+  if (process.env.TARO_ENV === 'h5') {
+    windowWidth = window.innerWidth;
+    pixelRatio = window.devicePixelRatio || 1;
+  } else {
+    const sysInfo = Taro.getSystemInfoSync();
+    windowWidth = sysInfo.windowWidth;
+    pixelRatio = sysInfo.pixelRatio;
+  }
+  return { windowWidth, pixelRatio };
+}
+
 export function mergeOptions(options: Partial<IOptions>): IOptions {
-  const sysInfo = Taro.getSystemInfoSync();
+  const sysInfo = getDeviceInfo();
   const canvasHeight = options.canvasHeight || 150;
   return {
     canvasHeight,
