@@ -1,7 +1,7 @@
 import Taro from '@tarojs/taro';
 import { Component } from 'react';
 import { View, Canvas, Button, Input } from '@tarojs/components';
-import Barrage from '../dist/index.es';
+import Barrage from 'tbarrage';
 import avatar from './avatar.png';
 
 import './index.css';

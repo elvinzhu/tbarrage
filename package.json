@@ -7,6 +7,8 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "build": "rollup --config ./rollup.config.js",
+    "link2": "npm link && cd demo-for-taro2 && npm link tbarrage",
+    "link3": "npm link && cd demo-for-taro3 && npm link tbarrage",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
