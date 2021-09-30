@@ -3,13 +3,13 @@ import { getCanvas, getImage, mergeOptions } from './helper';
 import { IRunningItem, IItem, IOptions } from './types';
 
 export default class Barrage {
-  selector: string;
-  queue: IRunningItem[] = [];
-  runnings: IRunningItem[][] = [];
-  stoped: Boolean = false;
-  canvas: Taro.Canvas | HTMLCanvasElement;
-  options: IOptions;
-  rafId: number;
+  private selector: string;
+  private queue: IRunningItem[] = [];
+  private runnings: IRunningItem[][] = [];
+  private stoped: Boolean = true;
+  private canvas: Taro.Canvas | HTMLCanvasElement;
+  private options: IOptions;
+  private rafId: number;
 
   constructor(selector: string, data: IItem[], options: Partial<IOptions> = {}) {
     this.options = mergeOptions(options);
@@ -19,7 +19,7 @@ export default class Barrage {
     }
   }
 
-  async getCanvas() {
+  private async getCanvas() {
     if (!this.canvas) {
       const canvas = await getCanvas(this.selector);
       if (!canvas || !canvas.getContext) {
@@ -30,15 +30,7 @@ export default class Barrage {
     return this.canvas;
   }
 
-  push(data: IItem[] | IItem) {
-    if (Array.isArray(data)) {
-      data.forEach(item => this.resolve(item));
-    } else {
-      this.resolve(data);
-    }
-  }
-
-  async resolve(item: IItem) {
+  private async resolve(item: IItem) {
     const { color, font } = this.options;
     const itemData: IRunningItem = {
       txt: item.txt,
@@ -57,8 +49,29 @@ export default class Barrage {
     this.queue.push(itemData);
   }
 
+  /**
+   * 添加弹幕
+   * @param data
+   */
+  push(data: IItem[] | IItem) {
+    if (Array.isArray(data)) {
+      data.forEach(item => this.resolve(item));
+    } else {
+      this.resolve(data);
+    }
+  }
+
+  /**
+   * 开始滚动弹幕（重复调用无影响）
+   * @returns
+   */
   async run() {
+    if (!this.stoped) {
+      // 运行中，终止
+      return;
+    }
     this.stoped = false;
+
     const { height, canvasHeight, canvasWidth, imgWidth, dpr, maxRow, firstRowTop } = this.options;
     const { minGap, rowGap, imgTextGap, appearMaxGap, minSpeed, maxSpeed, mode } = this.options;
 
@@ -141,7 +154,7 @@ export default class Barrage {
     run();
   }
 
-  drawItem(ctx: CanvasRenderingContext2D, item: IRunningItem) {
+  private drawItem(ctx: CanvasRenderingContext2D, item: IRunningItem) {
     const { height, imgWidth, bgColor, imgTextGap } = this.options;
     let { left, top, color, font } = item; // top 指的是底色中心位置;
     let textX = left;
@@ -178,10 +191,16 @@ export default class Barrage {
     ctx.fillText(item.txt, textX, top);
   }
 
+  /**
+   * 停止或者开始滚动
+   */
   toggleRun() {
     this.stoped ? this.run() : this.stop();
   }
 
+  /**
+   * 停止滚动
+   */
   stop() {
     this.stoped = true;
     if (this.canvas) {
