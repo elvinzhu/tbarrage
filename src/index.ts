@@ -11,9 +11,13 @@ export default class Barrage {
   private options: IOptions;
   private rafId: number;
 
-  constructor(selector: string, data: IItem[], options: Partial<IOptions> = {}) {
+  constructor(selector: string | Taro.Canvas | HTMLCanvasElement, data: IItem[], options: Partial<IOptions> = {}) {
     this.options = mergeOptions(options);
-    this.selector = selector;
+    if (typeof selector === 'string') {
+      this.selector = selector;
+    } else {
+      this.canvas = selector;
+    }
     if (data) {
       this.push(data, 'low');
     }
