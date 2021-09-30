@@ -1,0 +1,51 @@
+{
+  "name": "tbarrage",
+  "version": "1.0.0",
+  "description": "弹幕",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup --config ./rollup.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elvinzhu/tbarrage.git"
+  },
+  "keywords": [
+    "弹幕",
+    "barrage",
+    "danmu"
+  ],
+  "author": "zhuyongyu",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "bugs": {
+    "url": "https://github.com/elvinzhu/tbarrage/issues"
+  },
+  "homepage": "https://github.com/elvinzhu/tbarrage#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@rollup/plugin-babel": "^5.1.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@tarojs/components": "3.0.7",
+    "@tarojs/react": "3.0.7",
+    "@tarojs/taro": "3.0.7",
+    "@types/babel__core": "^7.1.9",
+    "@types/classnames": "^2.2.9",
+    "@types/node": "^13.11.1",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "rollup": "^2.23.1",
+    "rollup-plugin-cleaner": "^1.0.0",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "typescript": "^3.8.3"
+  }
+}

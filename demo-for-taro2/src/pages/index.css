@@ -1,0 +1,22 @@
+
+.taro-canvas {
+  width: 100%;
+}
+
+canvas {
+  width: 100%;
+  height: 150PX;
+}
+
+input.weui-input,
+input {
+  border: solid 1PX #ddd;
+  font-size: 16PX;
+  padding: 10px;
+  box-sizing: border-box;
+  height: auto;
+}
+
+.box {
+  padding: 30px;
+}

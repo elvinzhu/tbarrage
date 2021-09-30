@@ -1,0 +1,18 @@
+
+canvas, taro-canvas-core {
+  width: 100% !important;
+  height: 150PX !important;
+}
+
+input.weui-input,
+input {
+  border: solid 1PX #ddd;
+  font-size: 16PX;
+  padding: 10px;
+  box-sizing: border-box;
+  height: auto;
+}
+
+.box {
+  padding: 30px;
+}
