@@ -1,6 +1,6 @@
 # tbarrage 弹幕
 
-弹幕 SDK，适用 taro2 & taro3。
+弹幕 SDK，适用 taro2 & taro3。目前只验证了 H5 & 微信小程序平台，其他平台待验证。欢迎各位验证补充，特开 [issue](https://github.com/elvinzhu/tbarrage/issues/1)记录
 
 taro3 下需注意调用时机。
 
