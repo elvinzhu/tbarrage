@@ -145,7 +145,7 @@ export default class Barrage {
             addItem(this.queue.shift() as IRunningItem, i);
           }
         }
-        // 如果第一个已经跑出了视野. (height / 2 时lineCap那个圆弧的宽度)
+        // 如果第一个已经跑出了视野. (height/2是lineCap那个圆弧的宽度)
         if (rowFirst && mode === 'loop' && rowFirst.left + rowFirst.width + height / 2 < 0) {
           this.queue.push(rowFirst);
           row.shift();

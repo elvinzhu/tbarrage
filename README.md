@@ -26,7 +26,7 @@ npm install tbarrage --save
 import Barrage from 'tbarrage';
 
 this.barrage = new Barrage(
-  '#canvas',
+  '#canvas', // 选择器或者canvas实例
   [
     {
       img: require('./avatar.png'),
